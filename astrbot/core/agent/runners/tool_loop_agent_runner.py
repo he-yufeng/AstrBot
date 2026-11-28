@@ -842,8 +842,10 @@ class ToolLoopAgentRunner(BaseAgentRunner[TContext]):
                             ) as responses:
                                 async for resp in responses:
                                     if resp.is_chunk:
-                                        has_stream_output = True
                                         yield resp
+                                        # The consumer records a part only when it emits a delta.
+                                        if self._message_indices:
+                                            has_stream_output = True
                                         continue
 
                                     if (

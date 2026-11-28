@@ -1365,7 +1365,7 @@ async def test_fallback_provider_used_when_primary_returns_err(
 
 @pytest.mark.asyncio
 @pytest.mark.parametrize("error_type", [RuntimeError, EmptyModelOutputError])
-@pytest.mark.parametrize("started", [False, True])
+@pytest.mark.parametrize("chunk_kind", [None, "empty", "text", "reasoning", "chain"])
 async def test_stream_failure_only_uses_fallback_before_output(
     runner,
     provider_request,
@@ -1373,14 +1373,25 @@ async def test_stream_failure_only_uses_fallback_before_output(
     mock_hooks,
     monkeypatch,
     error_type,
-    started,
+    chunk_kind,
 ):
     class FailingStreamProvider(MockProvider):
         async def text_chat_stream(self, **kwargs):
             self.call_count += 1
-            if started:
+            if chunk_kind is not None:
                 yield LLMResponse(
-                    role="assistant", completion_text="Partial answer", is_chunk=True
+                    role="assistant",
+                    completion_text="Partial answer" if chunk_kind == "text" else "",
+                    reasoning_content=(
+                        "Partial answer" if chunk_kind == "reasoning" else None
+                    ),
+                    result_chain=(
+                        MessageChain().message("Partial answer")
+                        if chunk_kind == "chain"
+                        else None
+                    ),
+                    usage=TokenUsage(input_other=10),
+                    is_chunk=True,
                 )
             raise error_type("stream ended early")
 
@@ -1399,11 +1410,13 @@ async def test_stream_failure_only_uses_fallback_before_output(
         fallback_providers=[fallback],
     )
 
-    await collect_events(runner.step_until_done(5))
+    events = await collect_events(runner.step_until_done(5))
 
     response = runner.get_final_llm_resp()
     assert response is not None
-    if started:
+    if chunk_kind in ("text", "reasoning", "chain"):
+        kind = "reasoning.delta" if chunk_kind == "reasoning" else "text.delta"
+        assert any(e.type == kind and e.text == "Partial answer" for e in events)
         assert primary.call_count == 1
         assert fallback.call_count == 0
         assert response.role == "err"
@@ -1416,6 +1429,7 @@ async def test_stream_failure_only_uses_fallback_before_output(
         )
         assert fallback.call_count == 1
         assert response.role == "assistant"
+        assert response.completion_text == "这是我的最终回答"
 
 
 @pytest.mark.asyncio
