@@ -56,8 +56,6 @@ class InitialLoader:
                 logger.critical(f"😭 Failed to initialize AstrBot: {e} !!!")
                 return
 
-            core_task = core_lifecycle.start()
-
             webui_dir = self.webui_dir
 
             self.dashboard_server = AstrBotDashboard(
@@ -67,17 +65,20 @@ class InitialLoader:
                 webui_dir,
             )
 
-            coro = self.dashboard_server.run()
-            if coro:
-                # 启动核心任务和仪表板服务器
-                task = asyncio.gather(core_task, coro)
-            else:
-                task = asyncio.ensure_future(core_task)
+            dashboard_coro = self.dashboard_server.run()
+            runtime_tasks = {asyncio.create_task(core_lifecycle.start())}
+            if dashboard_coro is not None:
+                runtime_tasks.add(asyncio.create_task(dashboard_coro))
             try:
-                # shield: 收到 SIGTERM/Ctrl+C 时不直接取消 Hypercorn，
-                # 而是在下面通过 dashboard_shutdown_event 让它优雅关闭
-                await asyncio.shield(task)  # 整个AstrBot在这里运行
-            except asyncio.CancelledError:
+                # Cancelling the waiter leaves the children running for graceful shutdown.
+                pending = runtime_tasks
+                while pending:
+                    done, pending = await asyncio.wait(
+                        pending, return_when=asyncio.FIRST_COMPLETED
+                    )
+                    for task in done:
+                        task.result()
+            except (asyncio.CancelledError, Exception) as run_error:
                 logger.info("🌈 Shutting down AstrBot...")
                 if sigterm_installed:
                     # 退出过程中忽略重复的 SIGTERM，避免打断 stop()
@@ -91,20 +92,31 @@ class InitialLoader:
                             f"Stopping AstrBot timed out after {STOP_TIMEOUT}s."
                         )
                         stop_task.cancel()
-                    elif exc := stop_task.exception():
+                    elif not stop_task.cancelled() and (exc := stop_task.exception()):
                         logger.error(
                             "Failed to stop AstrBot: "
                             + "".join(traceback.format_exception(exc))
                         )
-                    # stop() 出错或超时时也要关闭 WebUI 并释放数据库
+                    # Close the dashboard even if stop() failed or timed out.
                     core_lifecycle.dashboard_shutdown_event.set()
-                    await asyncio.wait({task}, timeout=DASHBOARD_SHUTDOWN_TIMEOUT)
-                    if not task.done():
+                    done, pending = await asyncio.wait(
+                        runtime_tasks, timeout=DASHBOARD_SHUTDOWN_TIMEOUT
+                    )
+                    for task in pending:
                         task.cancel()
-                    elif not task.cancelled() and (exc := task.exception()):
-                        logger.error(f"AstrBot exited with an error: {exc!r}")
+                    for task in done:
+                        if not task.cancelled() and (exc := task.exception()):
+                            if exc is not run_error:
+                                logger.error(f"AstrBot exited with an error: {exc!r}")
                 finally:
-                    await self.db.engine.dispose()
+                    try:
+                        await self.db.engine.dispose()
+                    except Exception:
+                        if isinstance(run_error, asyncio.CancelledError):
+                            raise
+                        logger.exception("Failed to dispose the database.")
+                if not isinstance(run_error, asyncio.CancelledError):
+                    raise
         finally:
             if sigterm_installed:
                 loop.remove_signal_handler(signal.SIGTERM)
