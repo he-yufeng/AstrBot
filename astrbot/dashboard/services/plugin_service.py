@@ -8,7 +8,7 @@ import re
 import ssl
 from collections.abc import Awaitable, Callable
 from dataclasses import dataclass
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
@@ -329,7 +329,7 @@ class PluginService:
         try:
             return datetime.fromtimestamp(
                 plugin_dir.stat().st_mtime,
-                timezone.utc,
+                UTC,
             ).isoformat()
         except OSError as exc:
             logger.warning(
@@ -559,7 +559,7 @@ class PluginService:
             "download_url": str(
                 download_url or payload.get("download_url") or ""
             ).strip(),
-            "installed_at": datetime.now(timezone.utc).isoformat(),
+            "installed_at": datetime.now(UTC).isoformat(),
         }
 
         market_plugin_id = self.get_market_plugin_id(payload)
@@ -1491,7 +1491,7 @@ class PluginService:
                 old_record.get("installed_at")
                 if isinstance(old_record, dict) and old_record.get("installed_at")
                 else self.get_plugin_installed_at(plugin)
-                or datetime.now(timezone.utc).isoformat()
+                or datetime.now(UTC).isoformat()
             )
             record = {
                 "schema_version": 1,
@@ -1502,7 +1502,7 @@ class PluginService:
                 "repo": plugin_repo,
                 "download_url": "",
                 "installed_at": installed_at,
-                "updated_at": datetime.now(timezone.utc).isoformat(),
+                "updated_at": datetime.now(UTC).isoformat(),
             }
             plugin_name_value = str(plugin.name or "").strip()
             if plugin_name_value:
@@ -1577,8 +1577,7 @@ class PluginService:
         installed_at = (
             old_record.get("installed_at")
             if isinstance(old_record, dict) and old_record.get("installed_at")
-            else self.get_plugin_installed_at(plugin)
-            or datetime.now(timezone.utc).isoformat()
+            else self.get_plugin_installed_at(plugin) or datetime.now(UTC).isoformat()
         )
         record = {
             "schema_version": 1,
@@ -1590,7 +1589,7 @@ class PluginService:
             "repo": repo_url,
             "download_url": str(market_plugin.get("download_url") or "").strip(),
             "installed_at": installed_at,
-            "updated_at": datetime.now(timezone.utc).isoformat(),
+            "updated_at": datetime.now(UTC).isoformat(),
         }
         category = self.resolve_market_category(
             market_data, market_plugin.get("category")
@@ -1641,7 +1640,7 @@ class PluginService:
                 or ""
             ).strip()
         record["root_dir_name"] = plugin.root_dir_name
-        record["updated_at"] = datetime.now(timezone.utc).isoformat()
+        record["updated_at"] = datetime.now(UTC).isoformat()
         records[plugin.root_dir_name] = record
         await self.save_plugin_install_sources(records)
 

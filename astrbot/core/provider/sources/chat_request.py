@@ -9,10 +9,10 @@ from contextlib import (
     asynccontextmanager,
 )
 from dataclasses import dataclass, field
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from inspect import isawaitable
 from time import monotonic
-from typing import TYPE_CHECKING, TypeVar
+from typing import TYPE_CHECKING
 
 from astrbot.core import db_helper
 from astrbot.core.db.po import ChatRequestStat
@@ -24,8 +24,6 @@ from .request_retry import retry_provider_request_context
 
 if TYPE_CHECKING:
     from astrbot.core.provider.provider import Provider
-
-T = TypeVar("T")
 
 
 @dataclass
@@ -44,7 +42,7 @@ class ChatAttempt:
 
 
 @asynccontextmanager
-async def chat_request(
+async def chat_request[T](
     provider: "Provider",
     label: str,
     model: str,
@@ -79,7 +77,7 @@ async def chat_request(
     @asynccontextmanager
     async def attempt():
         request = ChatAttempt()
-        created_at = datetime.now(timezone.utc)
+        created_at = datetime.now(UTC)
         try:
             async with AsyncExitStack() as stack:
                 response = factory()

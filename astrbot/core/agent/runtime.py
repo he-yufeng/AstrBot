@@ -7,7 +7,7 @@ from abc import ABC, abstractmethod
 from collections.abc import AsyncIterator, Awaitable, Callable, Generator
 from contextlib import AbstractAsyncContextManager, nullcontext
 from dataclasses import dataclass
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from enum import Enum
 from typing import TYPE_CHECKING, Any
 from uuid import uuid4
@@ -195,7 +195,7 @@ class AgentTurn:
                 event_id=str(uuid4()),
                 session=AgentSessionRef(self.session.runtime_name, self.session.id),
                 turn_id=self.id,
-                created_at=datetime.now(timezone.utc),
+                created_at=datetime.now(UTC),
                 payload=payload.model_copy(deep=True),
             )
         )

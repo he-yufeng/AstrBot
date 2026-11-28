@@ -7,7 +7,7 @@ from collections import Counter, defaultdict, deque
 from collections.abc import Sequence
 from copy import deepcopy
 from dataclasses import dataclass, field
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 
 from sqlalchemy import insert, literal
 from sqlalchemy.orm import aliased
@@ -393,8 +393,8 @@ class ConversationStore:
                 platform_id=platform_id,
                 title=title,
                 persona_id=persona_id,
-                created_at=created_at or datetime.now(timezone.utc),
-                updated_at=updated_at or created_at or datetime.now(timezone.utc),
+                created_at=created_at or datetime.now(UTC),
+                updated_at=updated_at or created_at or datetime.now(UTC),
             )
             session.add(conv)
             await session.flush()
@@ -1241,7 +1241,7 @@ class ConversationStore:
             ):
                 for key, value in metadata_changes.items():
                     setattr(conv, key, value)
-                conv.updated_at = datetime.now(timezone.utc)
+                conv.updated_at = datetime.now(UTC)
             # Display links are a derived projection, committed with the events.
             if link_display:
                 await project_webchat_event_links(session, committed)
@@ -1424,7 +1424,7 @@ class ConversationStore:
                         .where(PlatformMessageHistory.context_event_id == source)
                         .values(context_event_id=baseline.event_id)
                     )
-            conv.updated_at = datetime.now(timezone.utc)
+            conv.updated_at = datetime.now(UTC)
             session.add(conv)
             await session.commit()
 
@@ -1514,7 +1514,7 @@ class ConversationStore:
                         .where(PlatformMessageHistory.context_event_id == source_id)
                         .values(context_event_id=baseline.event_id)
                     )
-            conv.updated_at = datetime.now(timezone.utc)
+            conv.updated_at = datetime.now(UTC)
             # Old display records remain available to existing side threads.
             await session.execute(
                 update(PlatformMessageHistory)

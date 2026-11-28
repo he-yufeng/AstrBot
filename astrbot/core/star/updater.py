@@ -93,7 +93,7 @@ class _PluginUpdater(_RepoZipUpdater):
                 process.communicate(),
                 timeout=PLUGIN_GIT_CLONE_TIMEOUT_SECONDS,
             )
-        except asyncio.TimeoutError as exc:
+        except TimeoutError as exc:
             process.kill()
             await process.communicate()
             if target.exists():

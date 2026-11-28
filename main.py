@@ -5,7 +5,11 @@ import os
 import sys
 from pathlib import Path
 
-import runtime_bootstrap
+# This entry point must report the minimum before importing application code.
+if sys.version_info < (3, 12):  # noqa: UP036
+    raise SystemExit("Please run this project with Python 3.12 or later.")
+
+import runtime_bootstrap  # noqa: E402
 
 runtime_bootstrap.initialize_runtime_bootstrap()
 
@@ -60,10 +64,6 @@ logo_tmpl = r"""
 
 
 def check_env() -> None:
-    if not (sys.version_info.major == 3 and sys.version_info.minor >= 10):
-        logger.error("Please run this project with Python 3.10 or later.")
-        exit()
-
     astrbot_root = get_astrbot_root()
     if astrbot_root not in sys.path:
         sys.path.insert(0, astrbot_root)

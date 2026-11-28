@@ -90,7 +90,7 @@ ChatUI supports these common workflows:
 
 - The sidebar initially loads the 30 most recent conversations. Scroll near the bottom to automatically load older conversations, with a progress bar while loading. Automatic requests pause after a failure; select **Retry** to continue.
   If the list does not fill the sidebar, more pages load automatically. Opening an older conversation by URL keeps its title and selected sidebar entry visible before its page loads.
-- Create, rename, and delete conversations, and switch previous conversations from the sidebar.
+- Create, rename, and delete conversations, and switch previous conversations from the sidebar; you can also rename the current conversation in place by double-clicking its title in the middle of the header (or focusing the title and pressing Enter or F2).
 - Select the config profile, model provider, and model on the chat page; if Provider session separation is enabled, you can also choose a model for the current session only.
 - Send text, images, files, and voice input; uploaded attachments show previews and use file signature checks to help identify file types.
 - View model thinking, tool-call status, knowledge-base or web-search references, and per-message token and latency statistics.
@@ -146,7 +146,7 @@ Global settings are under `System Settings` at the bottom of the sidebar:
 
 The page title and section navigation stay fixed while only the settings pane on the right scrolls.
 
-- `General`: timezone, external callback address, logs, and cache.
+- `General`: timezone, external callback address, logs, cache, and the user experience improvement program. Below `Cache`, find `User Experience Improvement Program` and turn on `Disable User Experience Improvement Program` to stop uploading usage statistics.
 - `Appearance`: theme colors.
 - `Network`: HTTP proxy, Python package sources, and GitHub proxy. For the address to use when AstrBot runs in Docker, see [Deploy with Docker](/en/deploy/astrbot/docker.md).
 - `Security`: WebUI HTTPS, login rate limits, and TOTP.

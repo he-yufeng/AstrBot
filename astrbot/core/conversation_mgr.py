@@ -410,7 +410,7 @@ class ConversationManager:
         )
         try:
             await asyncio.wait_for(deletion, DELETION_TIMEOUT_SECONDS)
-        except asyncio.TimeoutError as exc:
+        except TimeoutError as exc:
             # Cancellation can race a commit. Check the rows before changing the selection.
             try:
                 remaining = await asyncio.wait_for(

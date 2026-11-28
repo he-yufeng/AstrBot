@@ -1,6 +1,5 @@
 from collections.abc import AsyncIterator, Awaitable, Callable
 from contextlib import AbstractAsyncContextManager, asynccontextmanager
-from typing import TypeVar
 
 from tenacity import (
     AsyncRetrying,
@@ -13,8 +12,6 @@ from tenacity import (
 from astrbot import logger
 from astrbot.core.utils.config_number import coerce_int_config
 from astrbot.core.utils.network_utils import is_connection_error
-
-T = TypeVar("T")
 
 REQUEST_RETRY_ATTEMPTS = 5  # default value
 REQUEST_RETRY_WAIT_MIN_S = 0.2
@@ -112,7 +109,7 @@ def _build_retrying(
     )
 
 
-async def retry_provider_request(
+async def retry_provider_request[T](
     provider_label: str,
     request_factory: Callable[[], Awaitable[T]],
     *,
@@ -151,7 +148,7 @@ async def retry_provider_request(
 
 
 @asynccontextmanager
-async def retry_provider_request_context(
+async def retry_provider_request_context[T](
     provider_label: str,
     context_manager_factory: Callable[[], AbstractAsyncContextManager[T]],
     *,

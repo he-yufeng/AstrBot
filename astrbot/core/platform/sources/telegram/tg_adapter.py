@@ -1,7 +1,6 @@
 import asyncio
 import os
 import re
-import sys
 import uuid
 from collections.abc import Sequence
 from contextlib import suppress
@@ -52,10 +51,7 @@ from .tg_event import TelegramPlatformEvent
 if TYPE_CHECKING:
     from telegram import MessageEntity
 
-if sys.version_info >= (3, 12):
-    from typing import override
-else:
-    from typing_extensions import override
+from typing import override
 
 
 @register_platform_adapter("telegram", "telegram 适配器")

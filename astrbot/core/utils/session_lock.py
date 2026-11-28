@@ -22,7 +22,7 @@ class _PerLoopSessionLockManager:
         try:
             try:
                 await asyncio.wait_for(lock.acquire(), timeout)
-            except asyncio.TimeoutError as exc:
+            except TimeoutError as exc:
                 raise TimeoutError("Session is busy. Please retry.") from exc
             try:
                 yield

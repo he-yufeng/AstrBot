@@ -710,7 +710,7 @@ class ChatService:
             return {"text": text.strip(), "provider_id": provider.meta().id}
         except UploadTooLargeError as exc:
             raise ChatServiceError("Recording exceeds the 25 MB limit") from exc
-        except asyncio.TimeoutError as exc:
+        except TimeoutError as exc:
             raise ChatServiceError("Audio transcription timed out") from exc
         except ChatServiceError:
             raise
@@ -1085,7 +1085,7 @@ class ChatService:
                         break
                     try:
                         item = await asyncio.wait_for(subscriber.get(), timeout=1)
-                    except asyncio.TimeoutError:
+                    except TimeoutError:
                         yield SSE_HEARTBEAT
                         continue
                     if item is None:

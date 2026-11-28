@@ -1,9 +1,11 @@
 import os
+import subprocess
 import sys
 
 # 将项目根目录添加到 sys.path
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
+from pathlib import Path
 from unittest import mock
 
 import pytest
@@ -21,37 +23,6 @@ from main import (
 )
 
 
-class _version_info:
-    def __init__(self, major, minor):
-        self.major = major
-        self.minor = minor
-
-    def __eq__(self, other):
-        if isinstance(other, tuple):
-            return (self.major, self.minor) == other[:2]
-        return (self.major, self.minor) == (other.major, other.minor)
-
-    def __ge__(self, other):
-        if isinstance(other, tuple):
-            return (self.major, self.minor) >= other[:2]
-        return (self.major, self.minor) >= (other.major, other.minor)
-
-    def __le__(self, other):
-        if isinstance(other, tuple):
-            return (self.major, self.minor) <= other[:2]
-        return (self.major, self.minor) <= (other.major, other.minor)
-
-    def __gt__(self, other):
-        if isinstance(other, tuple):
-            return (self.major, self.minor) > other[:2]
-        return (self.major, self.minor) > (other.major, other.minor)
-
-    def __lt__(self, other):
-        if isinstance(other, tuple):
-            return (self.major, self.minor) < other[:2]
-        return (self.major, self.minor) < (other.major, other.minor)
-
-
 def _write_dashboard_dist(dist_path, version: str | None = None) -> None:
     assets = dist_path / "assets"
     assets.mkdir(parents=True, exist_ok=True)
@@ -64,10 +35,7 @@ def _write_dashboard_dist(dist_path, version: str | None = None) -> None:
         (assets / "version").write_text(version, encoding="utf-8")
 
 
-def test_check_env(monkeypatch):
-    version_info_correct = _version_info(3, 10)
-    version_info_wrong = _version_info(3, 9)
-    monkeypatch.setattr(sys, "version_info", version_info_correct)
+def test_check_env():
     with mock.patch("os.makedirs") as mock_makedirs:
         check_env()
         # check_env uses get_astrbot_*_path() which returns absolute paths,
@@ -77,9 +45,27 @@ def test_check_env(monkeypatch):
         for call_args in mock_makedirs.call_args_list:
             assert call_args[1].get("exist_ok") is True
 
-    monkeypatch.setattr(sys, "version_info", version_info_wrong)
-    with pytest.raises(SystemExit):
-        check_env()
+
+@pytest.mark.parametrize("version", [(3, 10), (3, 11)])
+def test_startup_rejects_unsupported_python_before_importing_dependencies(version):
+    main_path = Path(__file__).resolve().parents[1] / "main.py"
+    result = subprocess.run(
+        [
+            sys.executable,
+            "-S",
+            "-c",
+            "import runpy, sys; "
+            f"sys.version_info = {version!r}; "
+            "runpy.run_path(sys.argv[1], run_name='__main__')",
+            str(main_path),
+        ],
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+
+    assert result.returncode == 1
+    assert result.stderr.strip() == "Please run this project with Python 3.12 or later."
 
 
 def test_apply_startup_env_flags_sets_reset_password_env(monkeypatch):
@@ -111,7 +97,6 @@ def test_check_env_appends_user_site_packages_after_runtime_paths(monkeypatch):
     site_packages_path = "/tmp/astrbot-site-packages"
     original_sys_path = list(sys.path)
 
-    monkeypatch.setattr(sys, "version_info", _version_info(3, 12))
     monkeypatch.setattr("main.get_astrbot_root", lambda: astrbot_root)
     monkeypatch.setattr(
         "main.get_astrbot_site_packages_path", lambda: site_packages_path
@@ -135,7 +120,6 @@ def test_check_env_does_not_append_duplicate_user_site_packages(monkeypatch):
     site_packages_path = "/tmp/astrbot-site-packages"
     original_sys_path = list(sys.path)
 
-    monkeypatch.setattr(sys, "version_info", _version_info(3, 12))
     monkeypatch.setattr("main.get_astrbot_root", lambda: astrbot_root)
     monkeypatch.setattr(
         "main.get_astrbot_site_packages_path", lambda: site_packages_path
@@ -152,39 +136,6 @@ def test_check_env_does_not_append_duplicate_user_site_packages(monkeypatch):
         check_env()
 
     assert sys.path.count(site_packages_path) == 1
-
-
-def test_version_info_comparisons():
-    """Test _version_info comparison operators with tuples and other instances."""
-    v3_10 = _version_info(3, 10)
-    v3_9 = _version_info(3, 9)
-    v3_11 = _version_info(3, 11)
-
-    # Test __eq__ with tuples
-    assert v3_10 == (3, 10)
-    assert v3_10 != (3, 9)
-    assert v3_9 == (3, 9)
-
-    # Test __ge__ with tuples
-    assert v3_10 >= (3, 10)
-    assert v3_10 >= (3, 9)
-    assert not (v3_9 >= (3, 10))
-    assert v3_11 >= (3, 10)
-
-    # Test __eq__ with other _version_info instances
-    assert v3_10 == _version_info(3, 10)
-    assert v3_10 != v3_9
-    assert v3_10 == v3_10  # Same instance
-
-    assert v3_10 != v3_11
-
-    # Test __ge__ with other _version_info instances
-    assert v3_10 >= v3_10
-    assert v3_10 >= v3_9
-    assert not (v3_9 >= v3_10)
-    assert v3_11 >= v3_10
-
-    assert v3_11 >= v3_11  # Same instance
 
 
 @pytest.mark.asyncio

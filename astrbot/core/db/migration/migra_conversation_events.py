@@ -3,7 +3,7 @@
 import json
 from contextlib import nullcontext
 from copy import deepcopy
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 
 from sqlalchemy.orm.attributes import flag_modified
 from sqlmodel import select, text, update
@@ -128,7 +128,7 @@ def linearize_legacy_events(
                         },
                         "created_at": old.get("created_at")
                         or conv.get("updated_at")
-                        or datetime.now(timezone.utc),
+                        or datetime.now(UTC),
                     }
                 )
                 if kind == "turn.started":

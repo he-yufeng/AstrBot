@@ -1,5 +1,5 @@
 import uuid
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 
 from sqlalchemy import DateTime
 from sqlmodel import Field, MetaData, SQLModel, Text, UniqueConstraint
@@ -43,13 +43,13 @@ class KnowledgeBase(BaseKBModel, table=True):
     top_m_final: int | None = Field(default=5, nullable=True)
     # Keep existing database timestamps unchanged across SQLModel upgrades.
     created_at: datetime = Field(
-        default_factory=lambda: datetime.now(timezone.utc),
+        default_factory=lambda: datetime.now(UTC),
         sa_type=DateTime(timezone=False),
     )
     updated_at: datetime = Field(
-        default_factory=lambda: datetime.now(timezone.utc),
+        default_factory=lambda: datetime.now(UTC),
         sa_type=DateTime(timezone=False),
-        sa_column_kwargs={"onupdate": datetime.now(timezone.utc)},
+        sa_column_kwargs={"onupdate": datetime.now(UTC)},
     )
     doc_count: int = Field(default=0, nullable=False)
     chunk_count: int = Field(default=0, nullable=False)
@@ -90,13 +90,13 @@ class KBDocument(BaseKBModel, table=True):
     chunk_count: int = Field(default=0, nullable=False)
     media_count: int = Field(default=0, nullable=False)
     created_at: datetime = Field(
-        default_factory=lambda: datetime.now(timezone.utc),
+        default_factory=lambda: datetime.now(UTC),
         sa_type=DateTime(timezone=False),
     )
     updated_at: datetime = Field(
-        default_factory=lambda: datetime.now(timezone.utc),
+        default_factory=lambda: datetime.now(UTC),
         sa_type=DateTime(timezone=False),
-        sa_column_kwargs={"onupdate": datetime.now(timezone.utc)},
+        sa_column_kwargs={"onupdate": datetime.now(UTC)},
     )
 
 
@@ -128,6 +128,6 @@ class KBMedia(BaseKBModel, table=True):
     file_size: int = Field(nullable=False)
     mime_type: str = Field(max_length=100, nullable=False)
     created_at: datetime = Field(
-        default_factory=lambda: datetime.now(timezone.utc),
+        default_factory=lambda: datetime.now(UTC),
         sa_type=DateTime(timezone=False),
     )

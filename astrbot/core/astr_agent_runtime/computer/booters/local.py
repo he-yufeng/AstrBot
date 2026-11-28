@@ -468,9 +468,9 @@ class LocalShellComponent(ShellComponent):
                             while windows_job.active_processes():
                                 remaining = deadline - time.monotonic()
                                 if remaining <= 0:
-                                    raise asyncio.TimeoutError
+                                    raise TimeoutError
                                 await asyncio.sleep(min(0.05, remaining))
-                    except asyncio.TimeoutError:
+                    except TimeoutError:
                         session.timed_out = True
                         logger.warning(
                             "Managed local shell session timed out: session_id=%s pid=%s",
@@ -496,7 +496,7 @@ class LocalShellComponent(ShellComponent):
                     asyncio.shield(wait_task),
                     timeout=yield_time_ms / 1000,
                 )
-            except asyncio.TimeoutError:
+            except TimeoutError:
                 pass
 
         return await self.poll_session(
@@ -970,7 +970,7 @@ class LocalShellComponent(ShellComponent):
                 asyncio.shield(session.wait_task),
                 timeout=5,
             )
-        except asyncio.TimeoutError:
+        except TimeoutError:
             pass
         # The leader may have exited while children remain in its process group.
         if session.sandboxed:

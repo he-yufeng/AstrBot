@@ -1,5 +1,4 @@
-from datetime import datetime
-from datetime import timezone as dt_timezone
+from datetime import UTC, datetime
 from typing import Any
 from zoneinfo import ZoneInfo, ZoneInfoNotFoundError
 
@@ -170,7 +169,7 @@ class FutureTaskTool(FunctionTool[AstrAgentContext]):
                 # has no tz-aware column type), so restore the UTC label
                 # before converting to the display timezone.
                 if next_run.tzinfo is None:
-                    next_run = next_run.replace(tzinfo=dt_timezone.utc)
+                    next_run = next_run.replace(tzinfo=UTC)
                 next_run = (
                     next_run.astimezone(tzinfo) if tzinfo else next_run.astimezone()
                 )
@@ -350,7 +349,7 @@ class FutureTaskTool(FunctionTool[AstrAgentContext]):
                     # no tz-aware column type), so restore the UTC label
                     # before converting to the display timezone.
                     if next_run.tzinfo is None:
-                        next_run = next_run.replace(tzinfo=dt_timezone.utc)
+                        next_run = next_run.replace(tzinfo=UTC)
                     next_run = (
                         next_run.astimezone(tzinfo) if tzinfo else next_run.astimezone()
                     )

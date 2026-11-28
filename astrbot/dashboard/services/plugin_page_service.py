@@ -6,7 +6,7 @@ import os
 import posixpath
 import re
 from dataclasses import dataclass
-from datetime import datetime, timedelta, timezone
+from datetime import UTC, datetime, timedelta
 from pathlib import Path
 from typing import cast
 from urllib.parse import quote, urlencode, urlunsplit
@@ -713,7 +713,7 @@ class PluginPageService:
         if not isinstance(username, str) or not username.strip():
             return None
 
-        now = datetime.now(timezone.utc)
+        now = datetime.now(UTC)
         payload = {
             "username": username,
             "token_type": PLUGIN_PAGE_ASSET_TOKEN_TYPE,

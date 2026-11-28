@@ -6,6 +6,8 @@
   "cleanUrls": true,
   "trailingSlash": false,
   "routes": [
+    { "src": "/", "dest": "/what-is-astrbot", "status": 301 },
+    { "src": "/en", "dest": "/en/what-is-astrbot", "status": 301 },
     { "handle": "filesystem" },
     { "src": "/.*", "dest": "/404.html", "status": 404 }
   ]

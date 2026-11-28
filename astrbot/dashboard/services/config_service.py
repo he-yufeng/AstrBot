@@ -5,7 +5,7 @@ import copy
 import inspect
 import os
 import traceback
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any, get_args
 from zoneinfo import ZoneInfo, ZoneInfoNotFoundError
@@ -604,7 +604,7 @@ class ConfigProfileService:
             effective UTC offset in minutes.
         """
         data = self.get_system_schema()
-        server_utc_time = datetime.now(timezone.utc)
+        server_utc_time = datetime.now(UTC)
         timezone_name = str(data["config"].get("timezone") or "").strip()
         if timezone_name:
             try:

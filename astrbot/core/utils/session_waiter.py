@@ -80,7 +80,7 @@ class SessionController:
         """等待事件结束或超时"""
         try:
             await asyncio.wait_for(event.wait(), timeout)
-        except asyncio.TimeoutError:
+        except TimeoutError:
             if not self.future.done():
                 self.future.set_exception(TimeoutError("等待超时"))
         except asyncio.CancelledError:

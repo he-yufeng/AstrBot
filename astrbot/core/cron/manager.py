@@ -2,7 +2,7 @@ import asyncio
 import json
 import re
 from collections.abc import Awaitable, Callable
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from typing import TYPE_CHECKING, Any
 from zoneinfo import ZoneInfo
 
@@ -353,7 +353,7 @@ class CronJobManager:
         aps_job = self.scheduler.get_job(job_id)
         if not aps_job or aps_job.next_run_time is None:
             return None
-        return aps_job.next_run_time.astimezone(timezone.utc)
+        return aps_job.next_run_time.astimezone(UTC)
 
     def get_next_run_time(self, job_id: str) -> datetime | None:
         """Read the live next-run time straight from the scheduler.
@@ -393,7 +393,7 @@ class CronJobManager:
             job = await self.db.get_cron_job(job_id)
             if not job or (not job.enabled and not ignore_enabled):
                 return
-            start_time = datetime.now(timezone.utc)
+            start_time = datetime.now(UTC)
             await self.db.update_cron_job(
                 job_id, status="running", last_run_at=start_time, last_error=None
             )

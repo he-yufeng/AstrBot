@@ -8,7 +8,7 @@ import threading
 import time
 import traceback
 from collections import defaultdict
-from datetime import datetime, timedelta, timezone
+from datetime import UTC, datetime, timedelta
 from functools import cmp_to_key
 from html.parser import HTMLParser
 from pathlib import Path
@@ -263,8 +263,8 @@ class StatService:
             ):
                 end = start + timedelta(days=1)
                 # Platform counters use local timestamps; provider records use UTC.
-                start_utc = start.astimezone(timezone.utc).replace(tzinfo=None)
-                end_utc = end.astimezone(timezone.utc).replace(tzinfo=None)
+                start_utc = start.astimezone(UTC).replace(tzinfo=None)
+                end_utc = end.astimezone(UTC).replace(tzinfo=None)
                 messages = (
                     await session.execute(
                         select(func.coalesce(func.sum(PlatformStat.count), 0)).where(
@@ -462,15 +462,15 @@ class StatService:
     @staticmethod
     def _ensure_aware_utc(value: datetime) -> datetime:
         if value.tzinfo is None:
-            return value.replace(tzinfo=timezone.utc)
-        return value.astimezone(timezone.utc)
+            return value.replace(tzinfo=UTC)
+        return value.astimezone(UTC)
 
     async def get_provider_token_stats(self, days: int) -> dict:
         try:
             if days not in (1, 3, 7):
                 days = 1
 
-            local_tz = datetime.now().astimezone().tzinfo or timezone.utc
+            local_tz = datetime.now().astimezone().tzinfo or UTC
             now_local = datetime.now(local_tz)
             range_start_local = (now_local - timedelta(days=days)).replace(
                 minute=0, second=0, microsecond=0
@@ -479,7 +479,7 @@ class StatService:
                 hour=0, minute=0, second=0, microsecond=0
             )
             query_start_local = min(range_start_local, today_start_local)
-            query_start_utc = query_start_local.astimezone(timezone.utc)
+            query_start_utc = query_start_local.astimezone(UTC)
 
             async with self.db_helper.get_db() as session:
                 result = await session.execute(

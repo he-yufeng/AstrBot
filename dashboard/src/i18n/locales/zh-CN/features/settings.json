@@ -47,24 +47,22 @@
     "restartRequired": "系统配置已保存。部分配置需要重启 AstrBot 后才会生效。",
     "groups": {
       "runtime": {
-        "title": "基础运行",
-        "subtitle": "时区与外部回调地址。"
+        "title": "基础运行"
       },
       "network": {
-        "title": "代理与依赖源",
-        "subtitle": "运行时代理、Python 依赖安装参数和 PyPI 源。"
+        "title": "代理与依赖源"
       },
       "webuiSecurity": {
-        "title": "WebUI 安全",
-        "subtitle": "HTTPS、代理头、登录限速与 TOTP。"
+        "title": "WebUI 安全"
       },
       "logs": {
-        "title": "日志",
-        "subtitle": "控制台日志、文件日志和 Trace 文件日志。"
+        "title": "日志"
       },
       "tempStorage": {
-        "title": "缓存",
-        "subtitle": "临时目录自动清理阈值。"
+        "title": "缓存"
+      },
+      "usageData": {
+        "title": "用户改进计划"
       }
     },
     "timePreview": {

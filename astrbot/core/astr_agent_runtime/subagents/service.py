@@ -404,7 +404,7 @@ class SubAgentService:
                     await asyncio.wait_for(
                         self._changed.wait_for(ready), timeout_ms / 1000
                     )
-                except asyncio.TimeoutError:
+                except TimeoutError:
                     timed_out = True
         results = []
         for agent, turn in selected:
@@ -622,7 +622,7 @@ class SubAgentService:
                         max(0, timeout - (time() - turn.created_at)),
                     )
                     outcome = AgentState.COMPLETED
-                except asyncio.TimeoutError:
+                except TimeoutError:
                     outcome, error = (
                         AgentState.TIMED_OUT,
                         "Agent task timed out, including queue time",

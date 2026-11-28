@@ -47,24 +47,22 @@
     "restartRequired": "システム設定を保存しました。一部の設定は AstrBot の再起動後に反映されます。",
     "groups": {
       "runtime": {
-        "title": "基本動作",
-        "subtitle": "タイムゾーンと外部から到達可能なコールバック URL。"
+        "title": "基本動作"
       },
       "network": {
-        "title": "プロキシと依存パッケージの取得元",
-        "subtitle": "実行時プロキシ、Python 依存パッケージのインストール設定、PyPI ミラー。"
+        "title": "プロキシと依存パッケージの取得元"
       },
       "webuiSecurity": {
-        "title": "WebUI セキュリティ",
-        "subtitle": "HTTPS、信頼済みプロキシヘッダー、ログイン回数制限、TOTP。"
+        "title": "WebUI セキュリティ"
       },
       "logs": {
-        "title": "ログ",
-        "subtitle": "コンソールログ、ファイルログ、Trace ファイルログ。"
+        "title": "ログ"
       },
       "tempStorage": {
-        "title": "キャッシュ",
-        "subtitle": "一時ディレクトリを自動消去するしきい値。"
+        "title": "キャッシュ"
+      },
+      "usageData": {
+        "title": "ユーザーエクスペリエンス改善プログラム"
       }
     },
     "timePreview": {

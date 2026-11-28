@@ -21,6 +21,9 @@
 - 「插件 → 管理行为 → 函数工具」现在只列出插件工具。Agent 运行时工具由配置文件的 AI 功能设置控制，MCP 工具可在「插件 → MCP」查看。
 - Extensions → Handlers → Function Tools now lists plugin tools. Configure Agent runtime tools in the profile's AI capability settings and view MCP tools under Extensions → MCP Servers.
 
+- WebUI 排队的提示条现在会按时自动关闭：前一条提示显示期间到达的提示不再一直停留到手动关闭。
+- WebUI: a toast that is queued while another is shown now closes after its timeout instead of staying until closed by hand.
+
 ### ChatUI history / ChatUI 历史记录
 
 - 一轮回复只保存为一条历史记录：流式分段、工具调用和按钮卡片都更新同一条记录，刷新后不再拆成多个气泡（SSE 与 WebSocket 相同）。已拆开的旧记录不会合并。
@@ -35,6 +38,11 @@
 - Button callback database reads and writes run on worker threads across all platforms. Buttons are sent after registration commits, and callbacks expired for over a day are removed from the cache and database.
 - 分块上传的清理任务在没有事件循环时不再留下未等待的协程。
 - The chunked-upload cleanup task no longer leaves an unawaited coroutine when no event loop is running.
+
+### ChatUI header / ChatUI 顶栏
+
+- 双击 ChatUI 顶栏中间的对话标题即可在原处重命名当前对话（聚焦标题后按 Enter 或 F2 也可以）：回车或点别处保存，Esc 取消；只有项目标题、没有打开对话时，以及在模型配置页时不响应。
+- Double-click the conversation title in the middle of the ChatUI header to rename the current conversation in place (or focus the title and press Enter or F2): Enter or clicking elsewhere saves, Esc cancels. A project-only title, or the title on the model provider pages, does nothing.
 
 ### Overview page / 总览页
 
@@ -62,3 +70,8 @@
 - Move view declarations from `Star.chatui_views` to `metadata.yaml` under `views`. Keep default labels in metadata and override them with i18n `views.<name>` (legacy `pages.<name>` remains supported). Existing declarations without a target remain standalone `plugin_page` views.
 - `chat_workbench` + `launcher=True` → `chat_workbench_with_launcher`：同一视图既能由消息或工具打开，也能从工作台「＋」打开。只由插件打开的视图继续使用 `chat_workbench`。
 - Replace `chat_workbench` + `launcher=True` with `chat_workbench_with_launcher` for views that can open from messages/tools and from **+**. Keep `chat_workbench` for plugin-opened views without a launcher entry.
+
+### ChatUI appearance / ChatUI 外观
+
+- ChatUI 的模型按钮只显示模型名，不再显示提供商 ID；悬停显示完整的提供商 ID，菜单中仍按提供商列出。
+- The ChatUI model button shows only the model name instead of the provider ID; hover to see the full provider ID, and the menu still lists entries by provider.

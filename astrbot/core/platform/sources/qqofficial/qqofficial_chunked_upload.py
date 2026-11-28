@@ -487,7 +487,7 @@ class QQOfficialChunkedUploader:
                     last_error = RuntimeError(
                         f"COS returned HTTP {response.status}: {response_text}"
                     )
-            except (aiohttp.ClientError, asyncio.TimeoutError, OSError) as exc:
+            except (TimeoutError, aiohttp.ClientError, OSError) as exc:
                 last_error = exc
             if attempt < _PART_PUT_ATTEMPTS - 1:
                 await asyncio.sleep(session.retry_delay)
@@ -610,7 +610,7 @@ class QQOfficialChunkedUploader:
                 raise
             except QQOfficialChunkedUploadError:
                 raise
-            except (aiohttp.ClientError, asyncio.TimeoutError, OSError) as exc:
+            except (TimeoutError, aiohttp.ClientError, OSError) as exc:
                 last_error = exc
                 if attempt < _API_TRANSPORT_ATTEMPTS - 1:
                     await asyncio.sleep(min(2**attempt, 8))

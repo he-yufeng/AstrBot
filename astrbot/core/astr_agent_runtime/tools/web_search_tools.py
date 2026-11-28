@@ -493,7 +493,7 @@ async def _serpapi_request(
                     if response.status in {401, 403, 429}:
                         continue
                     raise last_error
-        except (aiohttp.ClientError, asyncio.TimeoutError):
+        except (TimeoutError, aiohttp.ClientError):
             # Transport errors can include the request URL with its API key.
             raise RuntimeError("SerpApi search request failed or timed out.") from None
 

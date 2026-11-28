@@ -674,7 +674,7 @@ class FunctionToolExecutor(BaseFunctionToolExecutor[AstrAgentContext]):
                                         exc_info=True,
                                     )
                         yield None
-                except asyncio.TimeoutError:
+                except TimeoutError:
                     raise Exception(
                         f"tool {tool.name} execution timeout after {effective_timeout} seconds.",
                     )

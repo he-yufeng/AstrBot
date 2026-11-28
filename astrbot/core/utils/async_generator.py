@@ -1,12 +1,10 @@
 import asyncio
 from collections.abc import AsyncGenerator
 from contextlib import suppress
-from typing import TypeVar, cast
-
-T = TypeVar("T")
+from typing import cast
 
 
-async def iterate_in_task(
+async def iterate_in_task[T](
     generator: AsyncGenerator[T, None],
 ) -> AsyncGenerator[T, None]:
     """Advance and close a generator in one task, only when a caller requests it.

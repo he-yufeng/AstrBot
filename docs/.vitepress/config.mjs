@@ -1,11 +1,47 @@
 import { defineConfig } from "vitepress";
 import { head } from "./config/head";
 
+// 首页已移除：dev/preview 服务器里把 / 直接 308 到 /what-is-astrbot
+// （生产环境的 301 在 vercel.json 与 public/_redirects 中）
+const homepageRedirects = {
+  "/": "/what-is-astrbot",
+  "/en": "/en/what-is-astrbot",
+  "/en/": "/en/what-is-astrbot",
+};
+
+function homepageRedirectPlugin() {
+  const middleware = (req, res, next) => {
+    const url = req.url ?? "";
+    const pathname = url.split(/[?#]/)[0];
+    const target = homepageRedirects[pathname];
+    if (target) {
+      res.statusCode = 308;
+      // keep the original query string and hash in the redirect target
+      res.setHeader("Location", target + url.slice(pathname.length));
+      res.end();
+    } else {
+      next();
+    }
+  };
+  return {
+    name: "homepage-redirect",
+    configureServer: (server) => {
+      server.middlewares.use(middleware);
+    },
+    configurePreviewServer: (server) => {
+      server.middlewares.use(middleware);
+    },
+  };
+}
+
 // https://vitepress.dev/reference/site-config
 export default defineConfig({
   title: "AstrBot",
   description: "AstrBot",
   head: head,
+  vite: {
+    plugins: [homepageRedirectPlugin()],
+  },
 
   rewrites: {
     'zh/:rest*': ':rest*'
@@ -310,6 +346,7 @@ export default defineConfig({
           text: '发现文档有问题？在 GitHub 上编辑此页',
         },
         logo: '/favicon.svg',
+        logoLink: '/what-is-astrbot',
         socialLinks: [
           { icon: "github", link: "https://github.com/AstrBotDevs/AstrBot" },
         ],
@@ -609,6 +646,7 @@ export default defineConfig({
           text: 'Edit this page on GitHub',
         },
         logo: '/favicon.svg',
+        logoLink: '/en/what-is-astrbot',
         socialLinks: [
           { icon: "github", link: "https://github.com/AstrBotDevs/AstrBot" },
         ],

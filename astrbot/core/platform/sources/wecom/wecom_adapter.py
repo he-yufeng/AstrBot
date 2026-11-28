@@ -1,11 +1,10 @@
 import asyncio
 import os
-import sys
 import time
 import uuid
 from collections.abc import Awaitable, Callable
 from pathlib import Path
-from typing import Any, cast
+from typing import Any, cast, override
 from urllib.parse import unquote
 
 from fastapi.responses import Response as FastAPIResponse
@@ -41,11 +40,6 @@ from astrbot.core.utils.webhook_utils import log_webhook_info
 from .wecom_event import WecomPlatformEvent
 from .wecom_kf import WeChatKF
 from .wecom_kf_message import WeChatKFMessage
-
-if sys.version_info >= (3, 12):
-    from typing import override
-else:
-    from typing_extensions import override
 
 
 def _extract_wecom_media_filename(disposition: str | None) -> str | None:

@@ -4,7 +4,7 @@ import sqlite3
 import threading
 import typing as T
 from collections.abc import Awaitable, Callable
-from datetime import datetime, timedelta, timezone
+from datetime import UTC, datetime, timedelta
 from pathlib import Path
 
 from deprecated import deprecated
@@ -1089,7 +1089,7 @@ class SQLiteDatabase(BaseDatabase):
             session: AsyncSession
             async with session.begin():
                 # created_at stores UTC wall-clock values, so compare in UTC.
-                now = datetime.now(timezone.utc)
+                now = datetime.now(UTC)
                 cutoff_time = now - timedelta(seconds=offset_sec)
                 await session.execute(
                     delete(PlatformMessageHistory).where(
@@ -1404,7 +1404,7 @@ class SQLiteDatabase(BaseDatabase):
         """Get an active API key by hash (not revoked, not expired)."""
         async with self.get_db() as session:
             session: AsyncSession
-            now = datetime.now(timezone.utc)
+            now = datetime.now(UTC)
             query = select(ApiKey).where(
                 ApiKey.key_hash == key_hash,
                 col(ApiKey.revoked_at).is_(None),
@@ -1421,7 +1421,7 @@ class SQLiteDatabase(BaseDatabase):
                 await session.execute(
                     update(ApiKey)
                     .where(col(ApiKey.key_id) == key_id)
-                    .values(last_used_at=datetime.now(timezone.utc)),
+                    .values(last_used_at=datetime.now(UTC)),
                 )
 
     async def revoke_api_key(self, key_id: str) -> bool:
@@ -1432,7 +1432,7 @@ class SQLiteDatabase(BaseDatabase):
                 query = (
                     update(ApiKey)
                     .where(col(ApiKey.key_id) == key_id)
-                    .values(revoked_at=datetime.now(timezone.utc))
+                    .values(revoked_at=datetime.now(UTC))
                 )
                 result = T.cast(CursorResult, await session.execute(query))
                 return result.rowcount > 0
@@ -2426,7 +2426,7 @@ class SQLiteDatabase(BaseDatabase):
         async with self.get_db() as session:
             session: AsyncSession
             async with session.begin():
-                values: dict[str, T.Any] = {"updated_at": datetime.now(timezone.utc)}
+                values: dict[str, T.Any] = {"updated_at": datetime.now(UTC)}
                 if display_name is not None:
                     values["display_name"] = display_name
 
@@ -2469,7 +2469,7 @@ class SQLiteDatabase(BaseDatabase):
         Returns:
             Persisted UMO alias record.
         """
-        now = datetime.now(timezone.utc)
+        now = datetime.now(UTC)
         statement = sqlite_insert(UmoAlias).values(
             umo=umo,
             creator_sender_id=creator_sender_id,
@@ -2509,7 +2509,7 @@ class SQLiteDatabase(BaseDatabase):
             creator_sender_id: Sender that first caused the UMO to be recorded.
             auto_name: Name discovered from the inbound platform message.
         """
-        now = datetime.now(timezone.utc)
+        now = datetime.now(UTC)
         statement = sqlite_insert(UmoAlias).values(
             umo=umo,
             creator_sender_id=creator_sender_id,
@@ -2571,7 +2571,7 @@ class SQLiteDatabase(BaseDatabase):
         """
         if not sender_id:
             return
-        now = datetime.now(timezone.utc)
+        now = datetime.now(UTC)
         statement = sqlite_insert(UmoSender).values(
             umo=umo,
             sender_id=sender_id,
@@ -2735,7 +2735,7 @@ class SQLiteDatabase(BaseDatabase):
         async with self.get_db() as session:
             session: AsyncSession
             async with session.begin():
-                values: dict[str, T.Any] = {"updated_at": datetime.now(timezone.utc)}
+                values: dict[str, T.Any] = {"updated_at": datetime.now(UTC)}
                 if title is not None:
                     values["title"] = title
                 if emoji is not None:

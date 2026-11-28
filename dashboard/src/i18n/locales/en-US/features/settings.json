@@ -47,24 +47,22 @@
     "restartRequired": "System config saved. Some changes only take effect after restarting AstrBot.",
     "groups": {
       "runtime": {
-        "title": "Runtime Basics",
-        "subtitle": "Timezone and externally reachable callback URL."
+        "title": "Runtime Basics"
       },
       "network": {
-        "title": "Proxy & Dependency Sources",
-        "subtitle": "Runtime proxy, Python dependency install options, and PyPI source."
+        "title": "Proxy & Dependency Sources"
       },
       "webuiSecurity": {
-        "title": "WebUI Security",
-        "subtitle": "HTTPS, trusted proxy headers, login rate limits, and TOTP."
+        "title": "WebUI Security"
       },
       "logs": {
-        "title": "Logs",
-        "subtitle": "Console logs, file logs, and Trace file logging."
+        "title": "Logs"
       },
       "tempStorage": {
-        "title": "Cache",
-        "subtitle": "Automatic cleanup threshold for the temporary directory."
+        "title": "Cache"
+      },
+      "usageData": {
+        "title": "User Experience Improvement Program"
       }
     },
     "timePreview": {

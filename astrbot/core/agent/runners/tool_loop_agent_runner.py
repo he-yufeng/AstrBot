@@ -1,7 +1,6 @@
 import asyncio
 import copy
 import json
-import sys
 import time
 import traceback
 import typing as T
@@ -10,6 +9,7 @@ from collections.abc import Awaitable, Callable
 from contextlib import aclosing, suppress
 from dataclasses import dataclass, field, replace
 from pathlib import Path
+from typing import override
 
 from mcp.types import (
     BlobResourceContents,
@@ -84,11 +84,6 @@ from ..response import AgentResponse, AgentStats
 from ..run_context import ContextWrapper, TContext
 from ..tool_executor import BaseFunctionToolExecutor
 from .base import AgentState, BaseAgentRunner
-
-if sys.version_info >= (3, 12):
-    from typing import override
-else:
-    from typing_extensions import override
 
 
 @dataclass(slots=True)
